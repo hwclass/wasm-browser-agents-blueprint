@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>wasm-browser-agents-blueprint: Hello Agent</title>
+  <script type="module" src="./main.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #f5f5f5;
+    }
+
+    .form-container {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+    }
+
+    .form-group {
+      margin-bottom: 1em;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5em;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    select,
+    button {
+      width: 100%;
+      padding: 0.75em;
+      font-size: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      box-sizing: border-box;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7em top 50%;
+      background-size: 0.65em auto;
+      padding-right: 2em;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 1em;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 1em;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      margin-top: 2em;
+    }
+
+    .description {
+      background: #f8f9fa;
+      border-left: 4px solid #007bff;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .description h2 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .description p {
+      margin-bottom: 12px;
+    }
+
+    .description ul {
+      margin-bottom: 0;
+      padding-left: 20px;
+    }
+
+    .description li {
+      margin-bottom: 8px;
+    }
+
+    .description a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .description a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 style="text-align: center;">🤖 wasm-browser-agents-blueprint: Hello Agent</h1>
+
+  <div class="description">
+    <p>
+      This interactive web application demonstrates running AI agents directly in your browser using:
+    </p>
+    <ul>
+      <li><strong>WebLLM:</strong> Run large language models directly in the browser without any server requirements using
+        <a href="https://webllm.mlc.ai/">WebLLM</a>
+      </li>
+      <li><strong>WebAssembly (WASM):</strong> Execute high-performance code in three different languages:
+        <ul>
+          <li>🦀 <strong>Rust:</strong> High-performance, memory-safe systems programming</li>
+          <li>🐹 <strong>Go:</strong> Simple and efficient compiled language</li>
+          <li>🐍 <strong>Python:</strong> Running via Pyodide for scripting flexibility</li>
+        </ul>
+      </li>
+      <li><strong>Web Workers:</strong> Handle computations in background threads for smooth UI responsiveness</li>
+    </ul>
+
+    <p><strong>How it works:</strong></p>
+    <ul>
+      <li><strong>Select Runtime:</strong> Choose between Rust, Go, or Python implementations</li>
+      <li><strong>Customize Input:</strong> Set your name and preferred greeting language</li>
+      <li><strong>Interact:</strong> The system will:
+        <ul>
+          <li>Generate a greeting in your chosen language using WASM</li>
+          <li>Process your prompt using WebLLM for AI-powered responses</li>
+          <li>Handle everything locally in your browser - no server needed!</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div class="form-container">
+    <div class="form-group">
+      <label for="runtime">Tool Language:</label>
+      <select id="runtime">
+        <option value="rust">Rust (WASM)</option>
+        <option value="python">Python (Pyodide)</option>
+        <option value="go">Go (WASM)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" placeholder="Your name" value="World">
+    </div>
+
+    <div class="form-group">
+      <label for="lang">Language:</label>
+      <select id="lang">
+        <option value="en">English</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="es">Spanish</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="prompt">Prompt:</label>
+      <input type="text" id="prompt" placeholder="The LLM will elaborate on the greeting..." value="Please elaborate on this greeting and maybe teach us more about greetings in this language.">
+    </div>
+
+    <button id="run">Run Agent</button>
+  </div>
+
+  <pre id="output">WASM and LLM output will appear here...</pre>
+  <div id="progress" style="display: none; margin-top: 1em;">
+    <div style="background: #f0f0f0; border-radius: 4px; overflow: hidden;">
+      <div id="progress-bar" style="background: #4CAF50; height: 20px; width: 0%; transition: width 0.3s;"></div>
+    </div>
+    <div id="progress-text" style="text-align: center; margin-top: 0.5em;">Initializing model...</div>
+  </div>
+
+  <script type="module" async>
+    import { wrap } from "comlink";
+
+    let agent = null;
+    let worker = null;
+    let lastWorkerType = null;
+
+    // Function to set button states
+    function setButtonStates(enabled) {
+      document.getElementById("run").disabled = !enabled;
+    }
+
+    // Util: Loads the selected worker and exposes its API via Comlink
+    async function loadAgent(runtime) {
+      if (worker) {
+        worker.terminate();
+        worker = null;
+      }
+
+      if (runtime === "python") {
+        worker = new Worker("./worker-py.js", { type: "module" });
+      } else if (runtime === "go") {
+        worker = new Worker("./worker-go.js", { type: "module" });
+      } else if (runtime === "rust"){
+        worker = new Worker("./worker-rust.js", { type: "module" });
+      } else {
+        throw new Error("Invalid runtime or no runtime selected.");
+      }
+
+      // Add error handling for worker
+      worker.onerror = (error) => {
+        console.error("Worker error:", error);
+      };
+
+      agent = wrap(worker);
+      try {
+        await agent.ready();
+        lastWorkerType = runtime;
+        console.log(`${runtime} worker ready!`);
+      } catch (error) {
+        document.getElementById("output").textContent =
+          `❌ Worker initialization error: ${error.message || error}`;
+        throw error;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const runtimeSelect = document.getElementById("runtime");
+      const nameInput = document.getElementById("name");
+      const langSelect = document.getElementById("lang");
+      const promptInput = document.getElementById("prompt");
+      const runButton = document.getElementById("run");
+      const output = document.getElementById("output");
+      const progress = document.getElementById("progress");
+      const progressBar = document.getElementById("progress-bar");
+      const progressText = document.getElementById("progress-text");
+
+      // Disable button initially
+      setButtonStates(false);
+
+      // Initial worker load (default Rust)
+      try {
+        output.textContent = "🔄 Loading initial runtime...";
+        await loadAgent(runtimeSelect.value);
+        output.textContent = "Ready!";
+        setButtonStates(true);
+      } catch (error) {
+        output.textContent = `❌ Failed to load initial runtime: ${error.message}`;
+        setButtonStates(false);
+      }
+
+      runtimeSelect.onchange = async () => {
+        output.textContent = "🔄 Switching backend...";
+        setButtonStates(false);
+        try {
+          await loadAgent(runtimeSelect.value);
+          output.textContent = "Ready!";
+          setButtonStates(true);
+        } catch (error) {
+          output.textContent = `❌ Failed to load ${runtimeSelect.value} backend: ${error.message}`;
+          setButtonStates(false);
+        }
+      };
+
+      runButton.onclick = async () => {
+        // Disable button while running
+        setButtonStates(false);
+        output.textContent = "⏳ Running agent...";
+        
+        const name = nameInput.value.trim();
+        const lang = langSelect.value;
+        const prompt = promptInput.value.trim();
+        try {
+          const { greeting, llmOutput } = await agent.greetWithLLM(name, lang, prompt);
+          const runtimeLabel = runtimeSelect.value === "python" ? "🐍 Python" : 
+                              runtimeSelect.value === "go" ? "🐹 Go" :
+                              runtimeSelect.value === "rust" ? "🦀 Rust" : "Unknown";
+          output.textContent = `${runtimeLabel}: ${greeting}\n\n🤖 LLM: ${llmOutput}`;
+        } catch (e) {
+          output.textContent = `❌ Error: ${e.message || e}`;
+        } finally {
+          // Re-enable button after running, whether it succeeded or failed
+          setButtonStates(true);
+        }
+      };
+    });
+  </script>
+</body>
+
+</html>

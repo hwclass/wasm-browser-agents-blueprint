@@ -1,0 +1,17 @@
+{
+    "name": "wasm-browser-agents-blueprint",
+    "version": "0.1.0",
+    "description": "Browser native AI agents with WebLLM and WASM",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "dependencies": {
+        "@mlc-ai/web-llm": "^0.2.79",
+        "comlink": "^4.3.1"
+    },
+    "devDependencies": {
+        "vite": "^6.3.5"
+    }
+}

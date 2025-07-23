@@ -1,21 +1,46 @@
-FROM python:3.10-slim
+# Use Node.js as base image
+FROM node:20-slim
 
-RUN pip3 install --no-cache-dir --upgrade pip
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    curl \
     build-essential \
-    software-properties-common \
-    git
+    python3 \
+    python3-pip \
+    golang \
+    && rm -rf /var/lib/apt/lists/*
 
+# Install Rust and wasm-pack
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-COPY . /home/appuser/blueprint
-WORKDIR /home/appuser/blueprint
+# Set working directory
+WORKDIR /app
 
-RUN pip3 install /home/appuser/blueprint
+# Copy package files
+COPY package*.json ./
 
-RUN groupadd --gid 1000 appuser \
-    && useradd --uid 1000 --gid 1000 -ms /bin/bash appuser
+# Install Node.js dependencies
+RUN npm install
 
-USER appuser
+# Copy the rest of the application
+COPY . .
 
-EXPOSE 8501
-ENTRYPOINT ["./demo/run.sh"]
+# Make build scripts executable
+RUN chmod +x build.sh \
+    && chmod +x src/rust/build.sh \
+    && chmod +x src/go/build.sh \
+    && chmod +x src/python/build.sh
+
+# Build all WASM modules
+RUN ./build.sh
+
+# Build the application
+RUN npm run build
+
+# Expose the port the app runs on
+EXPOSE 5173
+
+# Start the application
+CMD ["npm", "run", "dev", "--", "--host"] 

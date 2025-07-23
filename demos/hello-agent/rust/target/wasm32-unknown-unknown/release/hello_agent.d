@@ -1,0 +1,1 @@
+/Users/barisguler/Documents/Repos/wasm-browser-agents-blueprint/demos/hello-agent/rust/target/wasm32-unknown-unknown/release/hello_agent.wasm: /Users/barisguler/Documents/Repos/wasm-browser-agents-blueprint/demos/hello-agent/rust/src/lib.rs
