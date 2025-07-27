@@ -29,9 +29,10 @@ COPY . .
 
 # Make build scripts executable
 RUN chmod +x build.sh \
-    && chmod +x src/rust/build.sh \
-    && chmod +x src/go/build.sh \
-    && chmod +x src/python/build.sh
+    && chmod +x demos/hello-agent/rust/build.sh \
+    && chmod +x demos/hello-agent/go/build.sh \
+    && chmod +x demos/hello-agent/python/build.sh \
+    && chmod +x demos/hello-agent/js/build.sh
 
 # Build all WASM modules
 RUN ./build.sh

@@ -27,7 +27,7 @@
 
 # wasm-browser-agents-blueprint
 
-This blueprint demonstrates how to build browser-native AI agents using WebAssembly (WASM) and WebLLM. It showcases the integration of multiple programming languages (Rust, Go, Python) through WASM to create high-performance, browser-based AI applications that run entirely client-side without server dependencies.
+This blueprint demonstrates how to build browser-native AI agents using WebAssembly (WASM) and WebLLM. It showcases the integration of multiple programming languages (Rust, Go, Python, JavaScript) to create high-performance, browser-based AI applications that run entirely client-side without server dependencies.
 
 <p align="center">
   <picture>
@@ -40,7 +40,59 @@ This blueprint demonstrates how to build browser-native AI agents using WebAssem
   </picture>
 </p>
 
-## Quick-start
+## Quick Start
+
+### 🐳 Recommended: Docker Deployment
+```bash
+# Build and run with Docker (Recommended)
+docker build -t wasm-browser-agents-app .
+
+# Run with recommended settings
+docker run -p 5173:5173 \
+  --gpus all \  # If GPU is available
+  --memory=8g \  # Recommended for running larger models
+  --shm-size=1g \  # Shared memory for better worker performance
+  wasm-browser-agents-app
+
+# For development with hot-reload
+docker run -p 5173:5173 \
+  -v $(pwd)/demos:/app/demos \
+  -v $(pwd)/src:/app/src \
+  wasm-browser-agents-app
+```
+
+The Docker setup automatically handles:
+- All required language toolchains (Rust, Go, Python)
+- WASM compilation tools and dependencies
+- Model management and resource allocation
+- Development environment configuration
+
+### Docker Requirements and Recommendations
+
+- **Minimum Requirements**:
+  - 4GB RAM
+  - 10GB disk space
+  - Docker 20.10.0 or higher
+
+- **Recommended Setup**:
+  - 8GB+ RAM for running larger models
+  - NVIDIA GPU with CUDA support
+  - Docker Compose for development
+  - WSL2 on Windows systems
+
+- **Resource Considerations**:
+  - Rust agent with f32 models: 6GB+ VRAM
+  - Go agent with balanced models: 4-5GB VRAM
+  - Python agent: 2-4GB VRAM
+  - JavaScript agent: 1-2GB VRAM
+
+- **Development Tips**:
+  - Use volume mounts for hot-reload during development
+  - Monitor Docker stats for resource usage
+  - Clear Docker cache periodically when switching models
+
+### Alternative: Manual Setup
+If you prefer to run without Docker, you can set up manually:
 
 ```bash
 # Clone the repository
@@ -61,17 +113,7 @@ npm run dev
 npm run build
 ```
 
-For Docker deployment:
-```bash
-docker build -t wasm-browser-agents-app .
-docker run -p 5173:5173 wasm-browser-agents-app
-```
-
-The Dockerfile handles all necessary setup:
-- Installs required language toolchains (Rust, Go, Python)
-- Sets up WASM compilation tools
-- Builds all WASM modules automatically
-- Builds and serves the application
+Note: Manual setup requires installing all language toolchains and dependencies separately. See [Pre-requisites](#pre-requisites) section for details.
 
 Visit `http://localhost:5173` to see the application in action.
 
@@ -86,6 +128,11 @@ The blueprint implements a multi-language WASM architecture that enables:
 
 2. **Browser-Native AI Processing**
    - WebLLM integration for client-side LLM inference
+   - Agent-specific LLM model selection:
+     - Rust: High-precision models optimized for performance (e.g., DeepSeek 8B f32)
+     - Go: Balanced models for concurrent operations (e.g., Qwen2 7B)
+     - Python: Research and experimental models (e.g., Phi-2)
+     - JavaScript: Lightweight, responsive models (e.g., TinyLlama)
    - Web Workers for non-blocking background processing
    - Comlink for seamless Web Worker communication
    - Real-time text generation and processing
@@ -121,11 +168,13 @@ browser-agents-blueprint/
 │   │   └── build.sh     # Rust-specific build script
 │   ├── go/              # Go WASM implementation
 │   │   └── build.sh     # Go-specific build script
-│   └── python/          # Python/Pyodide implementation
-│       └── build.sh     # Python-specific build script
+│   ├── python/          # Python/Pyodide implementation
+│   │   └── build.sh     # Python-specific build script
+│   └── js/              # JavaScript implementation
+│       └── build.sh     # JavaScript-specific build script
 ├── dist/                # Compiled WASM modules
 ├── docs/                # Documentation
-├── build.sh            # Main build script for all WASM modules
+├── build.sh            # Main build script for all modules
 ├── package.json         # Node.js dependencies and scripts
 └── Dockerfile          # Container configuration
 ```
@@ -154,11 +203,15 @@ The root `build.sh` script orchestrates the build process for all modules. When 
 
 ## Features
 
-- **WebLLM Integration**: Run large language models directly in your browser
+- **WebLLM Integration**: 
+  - Run large language models directly in your browser
+  - Agent-specific model optimization
+  - Dynamic model switching with automatic resource management
 - **Multi-Language WASM Support**:
-  - 🦀 **Rust**: High-performance, memory-safe systems programming
-  - 🐹 **Go**: Simple and efficient compiled language
-  - 🐍 **Python**: Running via Pyodide for scripting flexibility
+  - 🦀 **Rust**: High-performance, memory-safe systems programming with f32 precision models
+  - 🐹 **Go**: Simple and efficient concurrent language with balanced model performance
+  - 🐍 **Python**: Running via Pyodide for flexible scripting and experimental models
+  - 📜 **JavaScript**: Native browser implementation with lightweight models
 - **Web Workers**: Background processing for smooth UI responsiveness
 - **Comlink Integration**: Type-safe and ergonomic Web Worker communication
 - **Modern UI/UX**: Clean, responsive interface with consistent styling

@@ -7,24 +7,31 @@ console.log("Worker loaded");
 let engine;
 let wasmReady = false;
 let modelInitialized = false;
+let currentModel = null;
 
-const ready = async () => {
+const ready = async (modelId) => {
   if (!wasmReady) {
     await initWasm();
     wasmReady = true;
   }
-  if (!modelInitialized) {
-    engine = await CreateMLCEngine("Hermes-2-Theta-Llama-3-8B-q4f16_1-MLC", {
+
+  // If model changed or not initialized, set up the engine
+  if (!modelInitialized || currentModel !== modelId) {
+    if (engine) {
+      await engine.dispose(); // Clean up existing model
+    }
+
+    engine = await CreateMLCEngine(modelId, {
       initProgressCallback: (progress) => {
         console.log("Model loading progress:", progress.text);
       }
     });
     modelInitialized = true;
+    currentModel = modelId;
   }
 };
 
 async function greetWithLLM(name, lang, userPrompt) {
-  await ready();
   const greeting = wasm.greet(name, lang);
   
   // Construct a context-aware prompt that includes the greeting

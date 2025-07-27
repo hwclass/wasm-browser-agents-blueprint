@@ -1,17 +1,19 @@
 // Convert to module worker with ES6 imports
 import { expose } from "comlink";
 import { CreateMLCEngine } from "@mlc-ai/web-llm";
+import "./go/wasm_exec.js";
+
+console.log("Worker loaded");
 
 let go;
 let wasmLoaded = false;
 let engine;
 let modelInitialized = false;
+let currentModel = null;  // Track the current model ID
 
-async function ready() {
+async function ready(modelId) {
   if (!wasmLoaded) {
     // Load Go WASM - import the script which sets up globalThis.Go
-    await import('./go/wasm_exec.js');
-    // Now access Go from the global scope
     go = new globalThis.Go();
     const wasmResp = await fetch('./go/hello_agent.wasm');
     const wasmBuf = await wasmResp.arrayBuffer();
@@ -21,19 +23,22 @@ async function ready() {
     wasmLoaded = true;
   }
   
-  if (!modelInitialized) {
-    engine = await CreateMLCEngine("Hermes-2-Theta-Llama-3-8B-q4f16_1-MLC", {
+  if (!modelInitialized || currentModel !== modelId) {
+    if (engine) {
+      await engine.dispose(); // Clean up existing model
+    }
+    
+    engine = await CreateMLCEngine(modelId, {
       initProgressCallback: (progress) => {
         console.log("Model loading progress:", progress.text);
       }
     });
     modelInitialized = true;
+    currentModel = modelId;  // Update the current model ID
   }
 }
 
 async function greetWithLLM(name, lang, userPrompt) {
-  await ready();
-  
   // Call Go's greet exported function - this is the actual WASM call
   const greeting = self.greet(name, lang);
   
