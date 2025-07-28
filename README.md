@@ -36,7 +36,7 @@ This blueprint demonstrates how to build browser-native AI agents using WebAssem
     <!-- When the user prefers light mode, show the black logo -->
     <source media="(prefers-color-scheme: light)" srcset="./images/headline.png">
     <!-- Fallback: default to the black logo -->
-    <img src="./images/headline.png" width="35%" alt="WASM Browser Agents Blueprint"/>
+    <img src="./images/headline.png" width="100%" alt="WASM Browser Agents Blueprint"/>
   </picture>
 </p>
 

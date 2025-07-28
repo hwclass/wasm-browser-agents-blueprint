@@ -17,9 +17,8 @@ export GOARCH=wasm
 echo "Building Go WASM agent..."
 go build -o main.wasm
 
-# Copy the WebAssembly support JavaScript file
-mkdir -p ../../dist/go
-cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ../../dist/go/
-cp main.wasm ../../dist/go/
+# Copy the WebAssembly support JavaScript file to the same directory
+cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./
 
-echo "Go WASM agent built successfully!" 
+echo "Go WASM agent built successfully!"
+echo "Generated files: main.wasm and wasm_exec.js" 

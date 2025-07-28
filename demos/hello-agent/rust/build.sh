@@ -13,8 +13,5 @@ fi
 echo "Building Rust WASM agent..."
 wasm-pack build --target web
 
-# Move the generated files to the dist directory
-mkdir -p ../../dist/rust
-cp pkg/* ../../dist/rust/
-
-echo "Rust WASM agent built successfully!" 
+echo "Rust WASM agent built successfully!"
+echo "Generated files are in pkg/ directory" 
