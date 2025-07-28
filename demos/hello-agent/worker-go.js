@@ -15,7 +15,7 @@ async function ready(modelId) {
   if (!wasmLoaded) {
     // Load Go WASM - import the script which sets up globalThis.Go
     go = new globalThis.Go();
-    const wasmResp = await fetch('./go/hello_agent.wasm');
+    const wasmResp = await fetch('./go/main.wasm');
     const wasmBuf = await wasmResp.arrayBuffer();
     await WebAssembly.instantiate(wasmBuf, go.importObject).then(result => {
       go.run(result.instance);

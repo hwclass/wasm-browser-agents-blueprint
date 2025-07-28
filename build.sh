@@ -9,9 +9,6 @@ chmod +x demos/hello-agent/go/build.sh
 chmod +x demos/hello-agent/python/build.sh
 chmod +x demos/hello-agent/js/build.sh
 
-# Create dist directory
-mkdir -p dist
-
 echo "Building all WASM agents..."
 
 # Build Rust agent
@@ -34,4 +31,9 @@ echo "Building JavaScript agent..."
 cd demos/hello-agent/js && ./build.sh
 cd ../../..
 
-echo "All agents built successfully!" 
+echo "All agents built successfully!"
+echo "Built files are organized in their respective language directories:"
+echo "  - Rust: demos/hello-agent/rust/pkg/"
+echo "  - Go: demos/hello-agent/go/"
+echo "  - Python: demos/hello-agent/python/"
+echo "  - JavaScript: demos/hello-agent/js/" 

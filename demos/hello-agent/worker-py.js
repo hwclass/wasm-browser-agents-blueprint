@@ -20,21 +20,11 @@ const ready = async (modelId) => {
                 stderr: console.error
             });
             
-            console.log("Pyodide loaded, setting up Python environment...");
+            console.log("Pyodide loaded, loading Python code...");
             
-            // Define the greeting function directly in Python
-            pyodide.runPython(`
-                GREETINGS = {
-                    'en': 'Hello',
-                    'fr': 'Bonjour',
-                    'de': 'Hallo',
-                    'es': 'Hola'
-                }
-
-                def greet(name, lang='en'):
-                    greeting = GREETINGS.get(lang, GREETINGS['en'])
-                    return f"{greeting}, {name}!"
-            `);
+            // Load the Python file from the python directory
+            const pythonCode = await fetch('./python/main.py').then(r => r.text());
+            pyodide.runPython(pythonCode);
             
             console.log("Python environment ready!");
         } catch (error) {
