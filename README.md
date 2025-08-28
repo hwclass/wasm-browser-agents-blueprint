@@ -47,13 +47,6 @@ This blueprint demonstrates how to build browser-native AI agents using WebAssem
 # Build and run with Docker (Recommended)
 docker build -t wasm-browser-agents-app .
 
-# Run with recommended settings
-docker run -p 5173:5173 \
-  --gpus all \  # If GPU is available
-  --memory=8g \  # Recommended for running larger models
-  --shm-size=1g \  # Shared memory for better worker performance
-  wasm-browser-agents-app
-
 # For development with hot-reload
 docker run -p 5173:5173 \
   -v $(pwd)/demos:/app/demos \
@@ -90,6 +83,29 @@ The Docker setup automatically handles:
   - Use volume mounts for hot-reload during development
   - Monitor Docker stats for resource usage
   - Clear Docker cache periodically when switching models
+
+### 🚀 Run from DockerHub
+
+You can quickly run the application using the pre-built Docker image from DockerHub:
+
+```bash
+# Pull and run the latest version
+docker pull hwclass/wasm-browser-agents-blueprint:latest
+
+# Run the container with development configuration
+docker run -p 5173:5173 \
+  -v $(pwd)/demos:/app/demos \
+  -v $(pwd)/src:/app/src \
+  hwclass/wasm-browser-agents-blueprint:latest
+
+# Visit http://localhost:5173 in your browser
+```
+
+The DockerHub image includes all necessary dependencies and is pre-configured for development. For production deployment, you can run without volume mounts:
+
+```bash
+docker run -p 5173:5173 hwclass/wasm-browser-agents-blueprint:latest
+```
 
 ### Alternative: Manual Setup
 If you prefer to run without Docker, you can set up manually:
