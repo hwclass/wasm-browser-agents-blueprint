@@ -1,5 +1,5 @@
 # Use Node.js as base image
-FROM node:20-slim
+FROM --platform=$BUILDPLATFORM node:lts
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,7 +11,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Rust and wasm-pack
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup-init && \
+    chmod +x rustup-init && \
+    ./rustup-init -y && \
+    rm rustup-init
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
