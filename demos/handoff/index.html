@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Handoff Demo - WASM Browser Agents</title>
+  <script type="module" src="./main.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #f5f5f5;
+    }
+
+    .form-container {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+    }
+
+    .form-group {
+      margin-bottom: 1em;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5em;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    textarea,
+    select,
+    button {
+      width: 100%;
+      padding: 0.75em;
+      font-size: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 100px;
+      font-family: sans-serif;
+      resize: vertical;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7em top 50%;
+      background-size: 0.65em auto;
+      padding-right: 2em;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 1em;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .description {
+      background: #f8f9fa;
+      border-left: 4px solid #007bff;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .description h2 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .description p {
+      margin: 10px 0;
+    }
+
+    .description code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .result-container {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .result-container h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .agent-badge {
+      display: inline-block;
+      padding: 0.3em 0.8em;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-bottom: 1em;
+    }
+
+    .agent-badge.rust {
+      background: #ff6b35;
+      color: white;
+    }
+
+    .agent-badge.go {
+      background: #00add8;
+      color: white;
+    }
+
+    .agent-badge.triage {
+      background: #6c757d;
+      color: white;
+    }
+
+    .count-result {
+      font-size: 2em;
+      font-weight: 700;
+      color: #007bff;
+      margin: 0.5em 0;
+    }
+
+    .trace {
+      background: #f4f4f4;
+      padding: 1em;
+      border-radius: 6px;
+      margin-top: 1em;
+      font-size: 0.9em;
+      line-height: 1.6;
+    }
+
+    .trace-item {
+      margin: 0.5em 0;
+      padding: 0.5em;
+      background: white;
+      border-left: 3px solid #007bff;
+      border-radius: 3px;
+    }
+
+    .progress {
+      background: #e9ecef;
+      border-radius: 6px;
+      padding: 1em;
+      margin-top: 1em;
+      display: none;
+    }
+
+    .progress.active {
+      display: block;
+    }
+
+    .progress-bar {
+      background: #007bff;
+      height: 4px;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .progress-text {
+      margin-top: 0.5em;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1em;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+    }
+
+    .routing-decision {
+      background: white;
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+      display: none;
+    }
+
+    .routing-decision.active {
+      display: block;
+    }
+
+    .routing-decision h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .routing-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5em 0;
+      gap: 1em;
+    }
+
+    .routing-box {
+      padding: 1em 1.5em;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .routing-box.triage {
+      background: #e7f5ff;
+      border: 2px solid #0056b3;
+      color: #0056b3;
+    }
+
+    .routing-box.selected {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #28a745;
+    }
+
+    .routing-arrow {
+      font-size: 1.5em;
+      color: #666;
+    }
+
+    .routing-reason {
+      background: #f8f9fa;
+      padding: 1em;
+      border-radius: 4px;
+      margin-top: 1em;
+      color: #666;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="description">
+    <h2>🤝 Agent Handoff Demo</h2>
+    <p>
+      This demo showcases <strong>multi-agent coordination</strong> using a triage pattern.
+      A routing agent (powered by WebLLM) analyzes your request and selects the appropriate
+      specialized counter agent to execute the task.
+    </p>
+    <p>
+      <strong>How it works:</strong>
+    </p>
+    <ul>
+      <li><code>Triage Agent</code> (JS + WebLLM) - Routes requests to specialized agents</li>
+      <li><code>Rust Counter</code> (WASM) - High-performance word counting</li>
+      <li><code>Go Counter</code> (WASM) - Portable word counting</li>
+    </ul>
+    <p>
+      Try different queries to influence routing: mention "performance" for Rust, "simplicity" for Go,
+      or let the triage agent decide automatically.
+    </p>
+  </div>
+
+  <div class="form-container">
+    <div class="form-group">
+      <label for="model-select">Triage Model:</label>
+      <select id="model-select">
+        <option value="Qwen2.5-1.5B-Instruct-q4f32_1-MLC">Qwen2.5 1.5B (Fast, ~1GB)</option>
+        <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5 Mini (Balanced, ~2GB)</option>
+        <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 3B (Accurate, ~2GB)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="user-query">Your Query (influences routing):</label>
+      <input
+        type="text"
+        id="user-query"
+        placeholder="Try: 'I need a simple word counter' or 'Fast performance counting needed'"
+        value="I need a simple word counter for this short text"
+      />
+      <small style="color: #666; display: block; margin-top: 0.5em;">
+        💡 Mention "simple" or "demo" → Go | "fast" or "performance" → Rust | Short text → Go | Long text → Rust
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="text-input">Text to Analyze:</label>
+      <textarea
+        id="text-input"
+        placeholder="Enter text here..."
+      >hello world hello universe hello cosmos</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="word-input">Word to Count:</label>
+      <input
+        type="text"
+        id="word-input"
+        placeholder="e.g., 'hello'"
+        value="hello"
+      />
+    </div>
+
+    <button id="run-btn">Run Agent Handoff</button>
+
+    <div id="progress" class="progress">
+      <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+      <div class="progress-text" id="progress-text">Initializing...</div>
+    </div>
+  </div>
+
+  <div id="routing-decision" class="routing-decision">
+    <h3>Routing Decision</h3>
+    <div id="routing-flow" class="routing-flow"></div>
+    <div id="routing-reason" class="routing-reason"></div>
+  </div>
+
+  <div id="result" style="display: none;" class="result-container">
+    <h3>Result</h3>
+    <div id="selected-agent"></div>
+    <div id="count-display"></div>
+    <div id="trace" class="trace"></div>
+  </div>
+
+  <div id="error" style="display: none;" class="error"></div>
+</body>
+
+</html>
