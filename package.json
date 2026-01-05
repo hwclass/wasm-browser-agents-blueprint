@@ -1,7 +1,7 @@
 {
     "name": "wasm-browser-agents-blueprint",
-    "version": "0.3.2",
-    "description": "Browser native AI agents with WebLLM and WASM, featuring agent-specific LLM models and multi-language support (Rust, Go, Python, JavaScript)",
+    "version": "0.4.0",
+    "description": "Browser native AI agents with WebLLM and WASM, featuring compositional SDK, agent handoff, tool calling, and multi-language support (Rust, Go, Python, JavaScript)",
     "type": "module",
     "scripts": {
         "dev": "vite",

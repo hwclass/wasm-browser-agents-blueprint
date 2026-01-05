@@ -1,8 +1,12 @@
 import { defineConfig } from 'vite';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: './demos/hello-agent',
+  root: './demos',
+  publicDir: '../public',
   server: {
     headers: {
       // Add WASM MIME type and CORS headers
@@ -24,28 +28,22 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: './dist',
+    outDir: '../dist',
     emptyOutDir: true,
     target: 'esnext',
-    lib: {
-      entry: path.resolve(__dirname, 'src/main.js'),
-      name: 'browser-agents-blueprint',
-      formats: ['es'],
-      fileName: (format) => `browser-agents-blueprint.${format}.js`,
-    },
     rollupOptions: {
-      input: path.resolve(__dirname, 'demos/hello-agent/index.html'),
+      input: {
+        'hello-agent': path.resolve(__dirname, 'demos/hello-agent/index.html'),
+        'handoff': path.resolve(__dirname, 'demos/handoff/index.html'),
+        'tool-calling': path.resolve(__dirname, 'demos/tool-calling/index.html'),
+      },
       output: {
         // Optimize chunk size for different types of content
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // Separate chunks for different agents
+        // Separate chunks for different components
         manualChunks: {
-          'rust-agent': ['./demos/hello-agent/worker-rust.js'],
-          'go-agent': ['./demos/hello-agent/worker-go.js'],
-          'python-agent': ['./demos/hello-agent/worker-py.js'],
-          'js-agent': ['./demos/hello-agent/worker-js.js'],
           'webllm': ['@mlc-ai/web-llm'],
           'comlink': ['comlink']
         }

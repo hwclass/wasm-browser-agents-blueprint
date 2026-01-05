@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WASM Browser Agents - Demos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      opacity: 0.9;
+    }
+
+    .demos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .demo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .demo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .demo-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #667eea;
+    }
+
+    .demo-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: #f0f0f0;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .demo-badge.new {
+      background: #667eea;
+      color: white;
+    }
+
+    .demo-description {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .demo-features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .demo-features li {
+      padding: 0.5rem 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .demo-features li:before {
+      content: "✓ ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .demo-link {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    .demo-link:hover {
+      background: #5568d3;
+    }
+
+    .footer {
+      text-align: center;
+      color: white;
+      opacity: 0.9;
+      margin-top: 2rem;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 WASM Browser Agents</h1>
+      <p class="subtitle">AI agents running entirely in your browser using WebAssembly & WebLLM</p>
+    </header>
+
+    <div class="demos-grid">
+      <!-- hello-agent demo -->
+      <a href="/hello-agent/" class="demo-card">
+        <div class="demo-icon">👋</div>
+        <div class="demo-badge">Original</div>
+        <h2 class="demo-title">hello-agent</h2>
+        <p class="demo-description">
+          Multi-language greeting agents demonstrating WASM integration across Rust, Go, Python, and JavaScript.
+        </p>
+        <ul class="demo-features">
+          <li>4 language implementations</li>
+          <li>WebLLM elaboration</li>
+          <li>Runtime switching</li>
+        </ul>
+        <span class="demo-link">Launch Demo →</span>
+      </a>
+
+      <!-- handoff demo -->
+      <a href="/handoff/" class="demo-card">
+        <div class="demo-icon">🤝</div>
+        <div class="demo-badge new">New</div>
+        <h2 class="demo-title">handoff</h2>
+        <p class="demo-description">
+          Multi-agent coordination with intelligent triage routing. A routing agent selects specialized WASM counters.
+        </p>
+        <ul class="demo-features">
+          <li>Triage routing agent</li>
+          <li>Rust & Go WASM agents</li>
+          <li>JSON schema validation</li>
+        </ul>
+        <span class="demo-link">Launch Demo →</span>
+      </a>
+
+      <!-- tool-calling demo -->
+      <a href="/tool-calling/" class="demo-card">
+        <div class="demo-icon">🛠️</div>
+        <div class="demo-badge new">New</div>
+        <h2 class="demo-title">tool-calling</h2>
+        <p class="demo-description">
+          Autonomous tool use with LLM-driven decision making. Agent analyzes requests and executes tools dynamically.
+        </p>
+        <ul class="demo-features">
+          <li>3 browser-safe tools</li>
+          <li>Multi-turn execution</li>
+          <li>Tool result feedback</li>
+        </ul>
+        <span class="demo-link">Launch Demo →</span>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>
+        Built with <strong>wasm-browser-agent-sdk</strong> •
+        <a href="https://github.com/hwclass/wasm-browser-agents-blueprint" target="_blank">View on GitHub</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Tool Calling Demo - WASM Browser Agents</title>
+  <script type="module" src="./main.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #f5f5f5;
+    }
+
+    .form-container {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+    }
+
+    .form-group {
+      margin-bottom: 1em;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5em;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    textarea,
+    select,
+    button {
+      width: 100%;
+      padding: 0.75em;
+      font-size: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 100px;
+      font-family: sans-serif;
+      resize: vertical;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7em top 50%;
+      background-size: 0.65em auto;
+      padding-right: 2em;
+    }
+
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 1em;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .description {
+      background: #f8f9fa;
+      border-left: 4px solid #28a745;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .description h2 {
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .description code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .tools-list {
+      background: #e7f5ff;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+
+    .tools-list h4 {
+      margin-top: 0;
+      color: #0056b3;
+    }
+
+    .tools-list ul {
+      margin: 5px 0;
+      padding-left: 20px;
+    }
+
+    .result-container {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+    }
+
+    .result-container h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .response {
+      background: #f8f9fa;
+      padding: 1.5em;
+      border-radius: 6px;
+      border-left: 4px solid #28a745;
+      line-height: 1.6;
+      margin-bottom: 1.5em;
+    }
+
+    .tool-calls {
+      margin-top: 1.5em;
+    }
+
+    .tool-call {
+      background: #f4f4f4;
+      padding: 1em;
+      border-radius: 6px;
+      margin-bottom: 1em;
+      border-left: 4px solid #007bff;
+    }
+
+    .tool-call-header {
+      font-weight: 600;
+      color: #007bff;
+      margin-bottom: 0.5em;
+    }
+
+    .tool-call-args {
+      background: white;
+      padding: 0.75em;
+      border-radius: 4px;
+      margin: 0.5em 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .tool-call-result {
+      background: #e7f5ff;
+      padding: 0.75em;
+      border-radius: 4px;
+      margin-top: 0.5em;
+      font-size: 0.95em;
+    }
+
+    .stats {
+      display: flex;
+      gap: 1em;
+      margin-top: 1em;
+      padding-top: 1em;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .stat {
+      flex: 1;
+      background: #f8f9fa;
+      padding: 1em;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #28a745;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 0.3em;
+    }
+
+    .progress {
+      background: #e9ecef;
+      border-radius: 6px;
+      padding: 1em;
+      margin-top: 1em;
+      display: none;
+    }
+
+    .progress.active {
+      display: block;
+    }
+
+    .progress-bar {
+      background: #28a745;
+      height: 4px;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .progress-text {
+      margin-top: 0.5em;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1em;
+      border-radius: 6px;
+      border: 1px solid #f5c6cb;
+    }
+
+    .activity-log {
+      background: white;
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+      display: none;
+    }
+
+    .activity-log.active {
+      display: block;
+    }
+
+    .activity-log h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .activity-log-entries {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 0.5em;
+      background: #fafafa;
+    }
+
+    .activity-entry {
+      padding: 0.5em;
+      margin: 0.25em 0;
+      background: white;
+      border-left: 3px solid #28a745;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    .activity-entry .time {
+      color: #666;
+      font-size: 0.85em;
+      margin-right: 0.5em;
+    }
+
+    .activity-entry .message {
+      color: #333;
+    }
+
+    .example-queries {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      border-left: 4px solid #ffc107;
+    }
+
+    .example-queries h4 {
+      margin-top: 0;
+      color: #856404;
+    }
+
+    .example-query {
+      background: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .example-query:hover {
+      background: #fff9e6;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="description">
+    <h2>🛠️ Tool Calling Demo</h2>
+    <p>
+      This demo showcases <strong>manual tool calling</strong> with a browser-native agent.
+      The agent (powered by WebLLM) outputs structured JSON to request tool execution,
+      then synthesizes results into a final response.
+    </p>
+
+    <div class="tools-list">
+      <h4>Available Tools:</h4>
+      <ul>
+        <li><code>count_character_occurrences</code> - Count how many times a character appears in text</li>
+        <li><code>visit_webpage</code> - Fetch and read webpage content (mocked)</li>
+        <li><code>search_web</code> - Search the web for information (mocked)</li>
+      </ul>
+    </div>
+
+    <p>
+      <strong>How it works:</strong> The agent is instructed to output JSON in the format
+      <code>{"kind":"tool_call","tool":"name","args":{...}}</code> to call tools, or
+      <code>{"kind":"respond","message":"..."}</code> for final responses.
+      This approach is robust to WebLLM's current limitations with native function calling.
+    </p>
+
+    <p style="background: #fff3cd; padding: 10px; border-radius: 4px; color: #856404; margin-top: 10px;">
+      ⚠️ <strong>Note:</strong> This uses manual JSON-based tool calling, not OpenAI-style function calling.
+      The demo includes automatic retry logic and fallback handling for robustness.
+    </p>
+  </div>
+
+  <div class="form-container">
+    <div class="form-group">
+      <label for="model-select">Agent Model:</label>
+      <select id="model-select">
+        <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 3B Instruct (Recommended, ~2GB)</option>
+        <option value="Qwen2.5-3B-Instruct-q4f16_1-MLC">Qwen2.5 3B Instruct (~2GB)</option>
+        <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi-3.5 Mini Instruct (~2GB)</option>
+      </select>
+    </div>
+
+    <div class="example-queries">
+      <h4>💡 Try these examples:</h4>
+      <div class="example-query" data-query="Count how many times the letter 'e' appears in the word 'elephant'">
+        Count how many times 'e' appears in "elephant"
+      </div>
+      <div class="example-query" data-query="Visit example.com and tell me what it's about">
+        Visit example.com and summarize it
+      </div>
+      <div class="example-query" data-query="Search for WebAssembly and count how many results you find">
+        Search for "WebAssembly" and count results
+      </div>
+      <div class="example-query" data-query="Visit mozilla.org, then search for Firefox, and count the letter 'o' in the Mozilla page content">
+        Multi-step: Visit mozilla.org, search for Firefox, count 'o' in content
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="user-input">Your Request:</label>
+      <textarea
+        id="user-input"
+        placeholder="Ask the agent to do something using the available tools..."
+      >Count how many times the letter 'o' appears in the text "hello world"</textarea>
+    </div>
+
+    <button id="run-btn">Execute Agent</button>
+
+    <div id="progress" class="progress">
+      <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+      <div class="progress-text" id="progress-text">Initializing...</div>
+    </div>
+  </div>
+
+  <div id="activity-log" class="activity-log">
+    <h3>Activity Log</h3>
+    <div id="activity-log-entries" class="activity-log-entries"></div>
+  </div>
+
+  <div id="result" style="display: none;" class="result-container">
+    <h3>Agent Response</h3>
+    <div id="response" class="response"></div>
+
+    <div id="tool-calls-section" style="display: none;">
+      <h4>Tool Execution Trace</h4>
+      <div id="tool-calls" class="tool-calls"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="stat-tools">0</div>
+        <div class="stat-label">Tools Called</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-turns">0</div>
+        <div class="stat-label">LLM Turns</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="error" style="display: none;" class="error"></div>
+</body>
+
+</html>

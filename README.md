@@ -29,6 +29,11 @@
 
 This blueprint demonstrates how to build browser-native AI agents using WebAssembly (WASM) and WebLLM. It showcases the integration of multiple programming languages (Rust, Go, Python, JavaScript) to create high-performance, browser-based AI applications that run entirely client-side without server dependencies.
 
+**Extended with:**
+- 🤝 **Agent Handoff**: Multi-agent coordination with triage routing
+- 🛠️ **Tool Calling**: Autonomous tool use with LLM-driven decision making
+- 📦 **Compositional SDK**: functional composition for agent construction
+
 <p align="center">
   <picture>
     <!-- When the user prefers dark mode, show the white logo -->
@@ -133,6 +138,58 @@ Note: Manual setup requires installing all language toolchains and dependencies 
 
 Visit `http://localhost:5173` to see the application in action.
 
+## 🎯 Demos
+
+### 1. hello-agent (Original)
+Multi-language greeting agents demonstrating WASM integration.
+
+**Location**: `demos/hello-agent/`
+**What it does**: Generates greetings in multiple languages, passes to LLM for elaboration
+**Languages**: Rust, Go, Python, JavaScript
+
+[View Demo Documentation](demos/hello-agent/)
+
+### 2. handoff (New)
+Multi-agent coordination with intelligent routing.
+
+**Location**: `demos/handoff/`
+**What it does**: Triage agent routes requests to specialized WASM counter agents
+**Agents**: Triage (JS+WebLLM), Rust Counter, Go Counter
+**Pattern**: Closed-world routing with JSON schema validation
+
+[View Demo Documentation](demos/handoff/README.md)
+
+### 3. tool-calling (New)
+Autonomous tool use with LLM-driven decision making.
+
+**Location**: `demos/tool-calling/`
+**What it does**: Agent analyzes requests, selects tools, executes them autonomously
+**Tools**: Character counting, webpage visiting, web search
+**Pattern**: Multi-turn tool execution with result feedback
+
+[View Demo Documentation](demos/tool-calling/README.md)
+
+## 📦 wasm-browser-agent-sdk
+
+This repository includes a compositional SDK for building browser-native agents:
+
+```typescript
+import { composeAgent, withName, withInstructions, withModel } from './src/sdk'
+
+const agent = composeAgent(
+  withName("counter_rust"),
+  withInstructions("Count word occurrences"),
+  withModel({ provider: "webllm", model: "Qwen2.5-1.5B" })
+)
+```
+
+**Key Principles**:
+- **Composition over classes** (functional patterns)
+- **Agents as decision engines** (not environments)
+- **Clean separation**: SDK ≠ Runtime ≠ Demo
+
+[View SDK Documentation](src/sdk/README.md)
+
 ## How it Works
 
 The blueprint implements a multi-language WASM architecture that enables:
@@ -176,50 +233,62 @@ The blueprint implements a multi-language WASM architecture that enables:
 ## Project Structure
 
 ```
-browser-agents-blueprint/
+wasm-browser-agents-blueprint/
 ├── demos/
-│   └── hello-agent/      # Main demo application
+│   ├── hello-agent/         # Multi-language greeting agents
+│   │   ├── rust/            # Rust WASM implementation
+│   │   ├── go/              # Go WASM implementation
+│   │   ├── python/          # Python/Pyodide implementation
+│   │   └── js/              # JavaScript implementation
+│   ├── handoff/             # Multi-agent coordination demo
+│   │   ├── rust/            # Rust counter agent
+│   │   ├── go/              # Go counter agent
+│   │   ├── wasm/            # Compiled WASM binaries
+│   │   ├── triage.worker.js # Triage routing agent
+│   │   └── *.worker.js      # Counter workers
+│   └── tool-calling/        # Autonomous tool use demo
+│       ├── tools.js         # Tool registry and implementations
+│       ├── agent.worker.js  # Tool-calling agent
+│       └── index.html       # Demo UI
 ├── src/
-│   ├── rust/            # Rust WASM implementation
-│   │   └── build.sh     # Rust-specific build script
-│   ├── go/              # Go WASM implementation
-│   │   └── build.sh     # Go-specific build script
-│   ├── python/          # Python/Pyodide implementation
-│   │   └── build.sh     # Python-specific build script
-│   └── js/              # JavaScript implementation
-│       └── build.sh     # JavaScript-specific build script
-├── dist/                # Compiled WASM modules
-├── docs/                # Documentation
-├── build.sh            # Main build script for all modules
-├── package.json         # Node.js dependencies and scripts
-└── Dockerfile          # Container configuration
+│   └── sdk/                 # wasm-browser-agent-sdk
+│       ├── types.ts         # Type definitions
+│       ├── compose.ts       # Compositional API
+│       ├── validation.ts    # I/O protocol validation
+│       └── index.ts         # Public exports
+├── build.sh                # Main build script for all demos
+├── package.json            # Node.js dependencies
+├── vite.config.mjs         # Build configuration
+└── Dockerfile             # Complete build environment
 ```
 
 ## Build Process
 
-The project includes individual build scripts for each language implementation:
+The project includes individual build scripts for each demo:
 
-1. **Rust Build (`src/rust/build.sh`)**
-   - Installs `wasm-pack` if not present
-   - Compiles Rust code to WASM using `wasm-pack`
-   - Outputs to `dist/rust/`
+### hello-agent
+- **Rust**: `demos/hello-agent/rust/build.sh` → Compiles to `pkg/`
+- **Go**: `demos/hello-agent/go/build.sh` → Compiles to `main.wasm`
+- **Python**: `demos/hello-agent/python/build.sh` → Prepares for Pyodide
+- **JavaScript**: `demos/hello-agent/js/build.sh` → No compilation
 
-2. **Go Build (`src/go/build.sh`)**
-   - Requires Go 1.18+
-   - Compiles Go code to WASM
-   - Copies necessary WASM support files
-   - Outputs to `dist/go/`
+### handoff
+- **Rust Counter**: `demos/handoff/rust/build.sh` → `wasm/counter_rust.wasm` (~15KB)
+- **Go Counter**: `demos/handoff/go/build.sh` → `wasm/counter_go.wasm` (~2.4MB)
 
-3. **Python Build (`src/python/build.sh`)**
-   - Prepares Python files for Pyodide
-   - Manages Python dependencies
-   - Outputs to `dist/python/`
+### tool-calling
+- No WASM build required (JavaScript tools)
 
-The root `build.sh` script orchestrates the build process for all modules. When using Docker, these build steps are automatically handled by the Dockerfile.
+**Build All**:
+```bash
+./build.sh  # Builds all WASM modules for all demos
+```
+
+When using Docker, all build steps are automatically handled by the Dockerfile.
 
 ## Features
 
-- **WebLLM Integration**: 
+- **WebLLM Integration**:
   - Run large language models directly in your browser
   - Agent-specific model optimization
   - Dynamic model switching with automatic resource management
@@ -228,6 +297,14 @@ The root `build.sh` script orchestrates the build process for all modules. When 
   - 🐹 **Go**: Simple and efficient concurrent language with balanced model performance
   - 🐍 **Python**: Running via Pyodide for flexible scripting and experimental models
   - 📜 **JavaScript**: Native browser implementation with lightweight models
+- **Multi-Agent Patterns**:
+  - 🤝 **Handoff**: Triage routing to specialized agents
+  - 🛠️ **Tool Calling**: Autonomous tool selection and execution
+  - 🔄 **Multi-Turn Execution**: Iterative tool use with result feedback
+- **Compositional SDK**:
+  - No classes, pure composition (functional patterns)
+  - Standardized `step(input: string) -> string` agent contract
+  - JSON Schema validation for agent I/O
 - **Web Workers**: Background processing for smooth UI responsiveness
 - **Comlink Integration**: Type-safe and ergonomic Web Worker communication
 - **Modern UI/UX**: Clean, responsive interface with consistent styling
